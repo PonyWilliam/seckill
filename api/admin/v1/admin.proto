@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package api.admin.v1;
+
+option go_package = "seckill/api/admin/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.admin.v1";
+
+service Admin {
+	rpc CreateAdmin (CreateAdminRequest) returns (CreateAdminReply);
+	rpc UpdateAdmin (UpdateAdminRequest) returns (UpdateAdminReply);
+	rpc DeleteAdmin (DeleteAdminRequest) returns (DeleteAdminReply);
+	rpc GetAdmin (GetAdminRequest) returns (GetAdminReply);
+	rpc ListAdmin (ListAdminRequest) returns (ListAdminReply);
+}
+
+message CommonReply{
+	//用于对操作不需要返回消息的消息统一回复
+	int64 code = 1;
+	string msg = 2;
+}
+
+message AdminReply{
+	int64 id = 1;
+	string user = 2;
+	int64 permission = 3;
+}
+
+message CreateAdminRequest {
+	string user = 1;
+	string pwd = 2;
+	int64 permission = 3;//定义权限，1代表和admin一样，2代表除了对管理员的操作都可以，3代表只能读不能写
+}
+message CreateAdminReply {
+	CommonReply reply = 1;
+}
+
+message UpdateAdminRequest {
+	int64 id = 1;
+	string user = 2;
+	string pwd = 3;
+	int64 permission = 4;
+}
+message UpdateAdminReply {
+	CommonReply reply = 1;
+}
+
+message DeleteAdminRequest {
+	int64 id = 1;
+}
+message DeleteAdminReply {
+	CommonReply reply = 1;
+}
+
+message GetAdminRequest {
+	int64 id = 1;
+}
+message GetAdminReply {
+	AdminReply admin = 1;
+}
+
+message ListAdminRequest {
+
+}
+message ListAdminReply {
+	repeated AdminReply admins = 1;
+}
