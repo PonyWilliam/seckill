@@ -2,6 +2,7 @@ package common
 
 import (
 	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
 )
 
@@ -13,5 +14,7 @@ func EncodePassword(pwd string) string{
 	pwd = hex.EncodeToString(h.Sum(nil))
 	pwd = "kratosddys" + pwd//第二层普通加密
 	h.Write([]byte(pwd))
-	return hex.EncodeToString(h.Sum(nil))//返回加密结果
+	s := sha256.New()
+	s.Write([]byte(hex.EncodeToString(h.Sum(nil))))
+	return hex.EncodeToString(s.Sum([]byte("kratos")))//最后一层用sha256加密
 }

@@ -94,6 +94,10 @@ func (sql *MySQL_D) Insert(table string, key []string, val []string) (error) {
 func (sql *MySQL_D) Select(dest interface{}, query string, args ...interface{}) error {
 	return sql.Db.Select(dest, query, args...)
 }
+func (sql *MySQL_D) Del(table string,flag string,val string)(sql.Result,error){
+	return sql.Db.Exec("DELETE from " + table + " WHERE " + flag + "=" + val)
+	
+}
 
 func LogErr(err error) {
 	if err != nil {
@@ -101,11 +105,13 @@ func LogErr(err error) {
 	}
 }
 
+//输入标识符、判断条件进行删除
+
 //直接执行
-func (sql MySQL_D) Exec(command string,args ...interface{}) (sql.Result, error) {
+func (sql *MySQL_D) Exec(command string,args ...interface{}) (sql.Result, error) {
 	return sql.Db.Exec(command,args...)
 }
 
-func (sql MySQL_D) Close(){
+func (sql *MySQL_D) Close(){
 	sql.Db.Close()
 }

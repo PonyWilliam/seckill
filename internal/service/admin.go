@@ -25,11 +25,36 @@ func (s *AdminService) CreateAdmin(ctx context.Context, req *pb.CreateAdminReque
 		Password: req.Pwd,
 		Permission: req.Permission,
 	}
-	s.uc.CreateAdmin(ctx,Admin)
-	return &pb.CreateAdminReply{}, nil
+	err := s.uc.CreateAdmin(ctx,Admin)
+	reply := &pb.CommonReply{}
+	if err != nil{
+		reply.Code = 500
+		reply.Msg = err.Error()
+		return &pb.CreateAdminReply{Reply:reply},err
+	}
+	reply.Code = 200
+	reply.Msg = "success"
+	return &pb.CreateAdminReply{Reply: reply}, err
 }
 func (s *AdminService) UpdateAdmin(ctx context.Context, req *pb.UpdateAdminRequest) (*pb.UpdateAdminReply, error) {
-	return &pb.UpdateAdminReply{}, nil
+	Admin := &biz.Admin_Change{
+		ID:req.Id,
+		Password: req.Pwd,
+		Permission: req.Permission,
+	}
+	err := s.uc.UpdateAdmin(ctx,Admin)
+	if err != nil{
+		
+	}
+	reply := &pb.CommonReply{}
+	if err != nil{
+		reply.Code = 500
+		reply.Msg = err.Error()
+		return &pb.UpdateAdminReply{Reply:reply},err
+	}
+	reply.Code = 200
+	reply.Msg = "success"
+	return &pb.UpdateAdminReply{Reply: reply}, err
 }
 func (s *AdminService) DeleteAdmin(ctx context.Context, req *pb.DeleteAdminRequest) (*pb.DeleteAdminReply, error) {
 	return &pb.DeleteAdminReply{}, nil

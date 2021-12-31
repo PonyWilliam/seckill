@@ -5,6 +5,7 @@ import (
 	"errors"
 	"seckill/common"
 	"seckill/internal/biz"
+	"strconv"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -22,7 +23,13 @@ type adminRepo struct{
 	data *Data
 	log *log.Helper
 }
-
+type Admin struct{
+	Id int `db:"id"`
+	User string `db:"user"`
+	Password string `db:"password"`
+	Permission int `db:"perm"`
+}
+var results []Admin
 func NewAdminRepo(data *Data,logger log.Logger)biz.AdminRepo{
 	return &adminRepo{
 		data:data,
@@ -48,13 +55,22 @@ func(r *adminRepo)UpdateAdmin(ctx context.Context,admin *biz.Admin_Change) error
 		return errors.New("查询账户出错")
 	}
 	//Username不允许修改,使用事务进行修改
+	if admin.Password != "" && admin.Permission != -1{
+		//一起插入
+		_,err := r.data.Db.Exec("update admin set pwd=?,perm=?",common.EncodePassword(admin.Password),admin.Permission)
+		if err != nil{
+			r.log.Error(err)
+			return err
+		}
+		return nil
+	}
 	conn,err := r.data.Db.Db.Begin()
 	if err != nil{
 		r.log.Error(err)
 		return err
 	}
 	if admin.Password != ""{
-		_,err := r.data.Db.Exec("update admin set pwd=? where id=?",admin.Password,admin.ID)
+		_,err := r.data.Db.Exec("update admin set pwd=? where id=?",common.EncodePassword(admin.Password),admin.ID)
 		if err != nil{
 			conn.Rollback()
 			r.log.Error(err)
@@ -69,15 +85,45 @@ func(r *adminRepo)UpdateAdmin(ctx context.Context,admin *biz.Admin_Change) error
 			return err
 		}
 	}
-	conn.Commit()
+	conn.Commit()//没有错误，原子性保持完整，直接写入数据库
 	return nil
 }
 func(r *adminRepo)DelAdmin(ctx context.Context,id int64) error{
+	_,err := r.data.Db.Del("admin","id",strconv.FormatInt(id,10))
+	if err != nil{
+		r.log.Error(err)
+		return err
+	}
 	return nil
 }
 func(r *adminRepo)ListAdmin(ctx context.Context) (error,[]biz.Admin_Response){
-	return nil,nil
+	err := r.data.Db.Select(&results,"select * from admin")
+	if err != nil{
+		r.log.Info(err)
+		return err,nil
+	}
+	temp := make([]biz.Admin_Response,len(results))
+	i := 0
+	for _,v := range results{
+		reverse_Admin(&v,&temp[i])
+		i+=1
+	}
+	return nil,temp
 }
 func(r *adminRepo)FindAdminByID(ctx context.Context,id int64)(error,[]biz.Admin_Response){
-	return nil,nil
+	res := &Admin{}
+	err := r.data.Db.Select(&res,"select * from admin where id = ? limit 1",id)
+	if err != nil{
+		r.log.Error(err)
+		return err,nil
+	}
+	temp := make([]biz.Admin_Response,1)
+	reverse_Admin(res,&temp[0])
+	return nil,temp
+}
+
+func reverse_Admin(src *Admin,dest *biz.Admin_Response){
+	dest.ID = int64(src.Id)
+	dest.Permission = int64(src.Permission)
+	dest.Username = src.User
 }

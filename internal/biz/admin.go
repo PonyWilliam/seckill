@@ -12,7 +12,6 @@ type Admin struct{
 }
 type Admin_Change struct{
 	ID int64
-	Username string;
 	Password string;
 	Permission int64
 }
