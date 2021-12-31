@@ -4,17 +4,28 @@ import (
 	"context"
 
 	pb "seckill/api/admin/v1"
+	"seckill/internal/biz"
+
+	"github.com/go-kratos/kratos/v2/log"
 )
 
 type AdminService struct {
 	pb.UnimplementedAdminServer
+	uc *biz.AdminUsecase//抽象接口
+	log *log.Helper
 }
 
-func NewAdminService() *AdminService {
-	return &AdminService{}
+func NewAdminService(uc *biz.AdminUsecase,logger log.Logger) *AdminService {
+	return &AdminService{uc:uc,log:log.NewHelper(logger)}
 }
 
 func (s *AdminService) CreateAdmin(ctx context.Context, req *pb.CreateAdminRequest) (*pb.CreateAdminReply, error) {
+	Admin := &biz.Admin{
+		Username: req.User,
+		Password: req.Pwd,
+		Permission: req.Permission,
+	}
+	s.uc.CreateAdmin(ctx,Admin)
 	return &pb.CreateAdminReply{}, nil
 }
 func (s *AdminService) UpdateAdmin(ctx context.Context, req *pb.UpdateAdminRequest) (*pb.UpdateAdminReply, error) {

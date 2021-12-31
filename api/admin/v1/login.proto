@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package api.admin.v1;
+
+option go_package = "seckill/api/admin/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.admin.v1";
+
+service Login {
+	rpc Login(Login_User_Request)returns (LoginReply);
+	rpc Login_Phone(Login_Phone_Request) returns (LoginReply);
+}
+
+message Login_Phone_Request{
+	string phone = 1;
+	string pwd = 2;
+}
+message Login_User_Request{
+	string user = 1;
+	string pwd = 2;
+}
+message LoginReply{
+	int64 code = 1;
+	string res = 2;
+}

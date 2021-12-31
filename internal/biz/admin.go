@@ -26,7 +26,7 @@ type AdminRepo interface{
 	UpdateAdmin(context.Context,*Admin_Change) error
 	DelAdmin(context.Context,int64) error
 	ListAdmin(context.Context) (error,[]Admin_Response)//根据ID查找并列举
-	FindAdminByID(context.Context,int64)(error,[]Admin_Response)//方便枚举
+	FindAdminByID(context.Context,int64)(error,[]Admin_Response)//方便返空
 }
 
 type AdminUsecase struct{
@@ -46,4 +46,10 @@ func(uc *AdminUsecase)UpdateAdmin(ctx context.Context,admin *Admin_Change) error
 }
 func(uc *AdminUsecase)DelAdmin(ctx context.Context,id int64) error{
 	return uc.repo.DelAdmin(ctx,id)
+}
+func(uc *AdminUsecase)ListAdmin(ctx context.Context) (error,[]Admin_Response){
+	return uc.repo.ListAdmin(ctx)
+}
+func(uc *AdminUsecase)FindAdminByID(ctx context.Context,id int64)(error,[]Admin_Response){
+	return uc.repo.FindAdminByID(ctx,id)
 }
